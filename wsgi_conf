@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+activate_this = '/var/www/decryptMessage/decryptMessage/env/bin/activate_this.py'
+execfile(activate_this, dict(__file__=activate_this))
+
+import sys
+import logging
+logging.basicConfig(stream=sys.stderr)
+sys.path.insert(0,"/var/www/FlaskApp/")
+
+from decryptMessage import app as application
+application.secret_key = 'ru1$(0ptd!dc^g8t=qk%$*)y6%af+jw-1&&9jgdyk(kwd*h'

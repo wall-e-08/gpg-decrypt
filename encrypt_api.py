@@ -1,56 +1,39 @@
-from flask import Flask, request, jsonify
 import gnupg
+import json
+import os
+
+from flask import Flask, request
 
 app = Flask(__name__)
 
 
-@app.route('/', methods=['POST',])
-def decryptMessage():
+@app.route('/decryptMessage', methods=['POST', ])
+def decrypt_message():
     if request.method == 'POST':
-        passphrase = "topsecret"
-        
-        post_data = request.get_json()
-        print(post_data)
-        if post_data.get("Message"):
-            f = open("encrypted_msg.gpg", "w+")
-            f.write(post_data.get("Message"))
-
-        gpg = gnupg.GPG(gnupghome='/home/wall-e/tmp-home/.gpg')
-        # gpg.encoding = 'utf-8'
-        input_data = gpg.gen_key_input(
-            key_type="RSA", key_length=1024,
-            passphrase=passphrase,
-        )
-        # print("input data: {}\n".format(input_data))
-        key = gpg.gen_key(input_data)
-
-        # create ascii-readable versions of pub / private keys
-        ascii_armored_public_keys = gpg.export_keys(key.fingerprint)
-        ascii_armored_private_keys = gpg.export_keys(
-            keyids=key.fingerprint,
-            secret=True,
-            passphrase=passphrase,
-        )
-        
-        # export
-        with open('key.asc', 'w') as f:
-            f.write(ascii_armored_public_keys)
-            f.write(ascii_armored_private_keys)
-
-        with open('encrypted_msg.gpg', 'rb') as f:
-            status = gpg.decrypt_file(
-                file=f,
-                passphrase=passphrase,
-                output='decrypted.txt',
+        try:
+            post_data = request.get_json()
+            _passphrase = post_data.get("Passphrase")
+            _message = post_data.get("Message")
+    
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            gpg_dir = os.path.join(base_dir, '.gpg')
+            if not os.path.exists(gpg_dir):
+                os.makedirs(gpg_dir)
+            gpg = gnupg.GPG(gnupghome=gpg_dir)
+    
+            decr = gpg.decrypt(_message, passphrase=_passphrase)
+            print(decr.data)
+    
+            return app.response_class(
+                response=json.dumps({"DecryptedMessage": decr.data.decode("utf-8"),}),
+                status=200,
+                mimetype='application/json'
             )
-        
-        print("RESULT:: {}\n".format(status))
-        print("data: {}\n".format(status.data))
-        print("username: {}\n".format(status.username))
+        except:
+            pass
 
-        print("ok: {}\n".format(status.ok))
-        print("status: {}\n".format(status.status))
-        print("stderr: {}\n".format(status.stderr))
-
-        # return key
-    return 'Hello, omg'
+    return app.response_class(
+        response=json.dumps({"Error": "Only Post method allowed",}),
+        status=200,
+        mimetype='application/json'
+    )

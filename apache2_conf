@@ -1,0 +1,9 @@
+<VirtualHost *:80>
+    ServerName decryptMessage
+    ServerAdmin decryptMessage
+    WSGIScriptAlias / /var/www/decryptMessage/decryptMessage
+    <Directory /var/www/decryptMessage/decryptMessage/>
+        Order allow,deny
+        Allow from all
+    </Directory>
+</VirtualHost>

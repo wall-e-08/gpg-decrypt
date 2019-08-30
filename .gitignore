@@ -176,3 +176,4 @@ dmypy.json
 .*\.swo
 .*\.swn
 .DS_Store
+/.gpg/
