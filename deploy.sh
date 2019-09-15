@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 
-DIR="$(pwd)"
+DIR="$(pwd)/gpg-decrypt"
 
-#install mod_wsgi
-yum install -y libapache2-mod-wsgi python3-dev python-devel python3-setuptools python3-pip build-essential libssl-dev libffi-dev
+yum install -y python-setuptools python-dev build-essential gnupg python-pip
 pip install --upgrade pip
 pip install virtualenv
 
-mkdir $HOME/decryptMessage
-cd $HOME/decryptMessage
+mkdir $HOME/dcm
+cd $HOME/dcm
+yes | cp -rf $DIR/* $HOME/dcm/
+
 
 virtualenv -p python3 venv
 
-source $HOME/decryptMessage/venv/bin/activate
+source $HOME/dcm/venv/bin/activate
 pip install wheel gunicorn
-pip install -r requirements.txt
+pip install -r $HOME/dcm/requirements.txt
 
 ufw allow 5000
 
