@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DIR="$(pwd)/gpg-decrypt"
+DIR="$(pwd)"
 
 yum install -y python-setuptools python-dev build-essential gnupg python-pip epel-release ufw
 pip install --upgrade pip
@@ -19,7 +19,7 @@ pip install -r /usr/share/decrypt_message/requirements.txt
 
 ufw allow 5000
 
-gunicorn --bind 0.0.0.0:5000 wsgi:app
+# gunicorn --bind 0.0.0.0:5000 wsgi:app
 deactivate
 
 
@@ -49,7 +49,7 @@ yum install -y nginx
 systemctl start nginx
 systemctl enable nginx
 
-touch /etc/nginx/sites-enabled/decrypt_message
+touch /etc/nginx/default.d/decrypt_message.conf
 "server {
     listen 80;
     server_name _;
@@ -58,6 +58,6 @@ touch /etc/nginx/sites-enabled/decrypt_message
         include proxy_params;
         proxy_pass http://unix:/user/share/decrypt_message/decrypt_message.sock;
     }
-}" >> /etc/nginx/sites-enabled/decrypt_message
+}" >> /etc/nginx/default.d/decrypt_message.conf
 
 systemctl restart nginx
