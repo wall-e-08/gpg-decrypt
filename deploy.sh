@@ -3,31 +3,19 @@
 DIR="$(pwd)"
 
 #install mod_wsgi
-apt-get install libapache2-mod-wsgi python-dev python-pip virtualenv
+yum install -y libapache2-mod-wsgi python3-dev python-devel python3-setuptools python3-pip build-essential libssl-dev libffi-dev
+pip install --upgrade pip
+pip install virtualenv
 
-#enable mod_wsgi
-a2enmod wsgi
+mkdir $HOME/decryptMessage
+cd $HOME/decryptMessage
 
-cd /var/www
-mkdir decryptMessage
-cd decryptMessage
-mkdir decryptMessage
-cd decryptMessage
+virtualenv -p python3 venv
 
-APP_DIR="/var/www/decryptMessage/decryptMessage"
-
-cp -r $DIR/* $APP_DIR
-
-cd $APP_DIR
-
-virtualenv -p python3 env
-source env/bin/activate
-
+source $HOME/decryptMessage/venv/bin/activate
+pip install wheel gunicorn
 pip install -r requirements.txt
-deactivate
 
-cat $DIR/apache2_conf > /etc/apache2/sites-available/decryptMessage.conf
-a2ensite decryptMessage
+ufw allow 5000
 
-cat $DIR/wsgi_conf > /var/www/decryptMessage/decryptMessage.wsgi
-service apache2 restart
+gunicorn --bind 0.0.0.0:5000 wsgi:app
